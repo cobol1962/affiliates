@@ -16,6 +16,13 @@
   $r = $action($_POST, [], $url, $mysqli);
   echo json_encode($r);
   exit;
-  function voided($data, $params, $url, $mysqli) {
-    echo "blah";
+  function getAffiliates($data, $params, $url, $mysqli) {
+    $sql = "select * from affiliates";
+    $rez = $mysqli->query($sql);
+    $res = [];
+    $res["data"] = [];
+    while ($row = mysqli_fetch_assoc($rez)) {
+      $res["data"][] = $row;
+    }
+    return $res;
   }

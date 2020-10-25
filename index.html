@@ -27,8 +27,23 @@
     <link rel="stylesheet" type="text/css" href="https://costercatalog.com/affiliates/css/sweetalert.css" />
     <link rel="stylesheet" type="text/css" href="https://costercatalog.com/affiliates/css/pretty-checkbox.css" />
 </head>
-<body>
-  Affiliates
+<body style="padding:20px;">
+  <h4>Affiliates list</h4>
+  <table class="display" style="width:100%;" id="affiliatesTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Address</th>
+        <th>Phone</th>
+        <th>Contact</th>
+        <th>Email</th>
+        <th>Commision</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
 </body>
 
 <script src="https://unpkg.com/@popperjs/core@2" type="text/javascript"></script>
@@ -36,6 +51,7 @@
 <script type="text/javascript" src="https://costercatalog.com/affiliates/js/chosen.jquery.js"></script>
  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script type="text/javascript" src="https://costercatalog.com/affiliates/DataTables/datatables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
 <script type="text/javascript" src="https://costercatalog.com/affiliates/js/jquery.dataTables.yadcf.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/select2@4.0.12/dist/js/select2.min.js"></script>
@@ -44,8 +60,90 @@
 <script type="text/javascript" src="https://costercatalog.com/affiliates/js/underscore.js"></script>
 <script type="text/javascript" src="https://costercatalog.com/affiliates/js/sweetalert2.js"></script>
 <script type="text/javascript" src="https://costercatalog.com/affiliates/js/jquery.validate.js"></script>
-<script type="text/javascript" src="https://costercatalog.com/affiliates/js/socket.js"></script>
 <script type="text/javascript" src="https://costercatalog.com/affiliates/js/api.js"></script>
-<script type="text/javascript" src="https://costercatalog.com/affiliates/js/mainScript.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-messaging.js"></script>
+<!--<script type="text/javascript" src="https://costercatalog.com/affiliates/js/mainScript.js"></script>-->
+
+<script>
+ var afTable = null;
+  $(document).ready(function() {
+    afTable = $("#affiliatesTable").DataTable({
+       dom: 'Bfrtip',
+      "paging": false,
+      "ajax": "api/index.php?request=getAffiliates",
+      buttons: [
+          {
+              text: 'Create affiliate',
+              action: function ( e, dt, node, config ) {
+                  $("#affiliateFormModal").modal("show");
+              }
+          }
+      ]
+    });
+  })
+</script>
+<!---- Modals -->
+<div class="modal" tabindex="-1" role="dialog" id="affiliateFormModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><strong id="title">Affiliate</strong></h5>
+            </div>
+            <div class="modal-body" id="filters_body">
+              <form id="affiliateForm">
+                <!--  SELECT `id`, `name`, `address`, `telephone`, `contactperson`, `contactemail`, `generalcomission` -->
+                <div class="form-group">
+                   <input placeholder="Name" id="name" type="text" name="name" class="form-control" />
+                </div>
+                <div class="form-group">
+                   <input placeholder="Address" id="address" type="text" name="address" class="form-control" />
+                </div>
+                <div class="form-group">
+                   <input placeholder="Telephone" id="telephone" type="text" name="telephone" class="form-control" />
+                </div>
+                <div class="form-group">
+                   <input placeholder="Contact person" id="contactperson" type="text" name="contactperson" class="form-control" />
+                </div>
+                <div class="form-group">
+                   <input placeholder="Contact email" id="contactemail" type="text" name="contactemail" class="form-control" />
+                </div>
+                <div class="form-group">
+                   <input placeholder="General discount" id="generalcomission" type="text" name="generalcomission" class="form-control" />
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+                <button  type="button" data-dismiss="modal" class="btn btn-secondary" style="margin-top:10px;">Close</button>
+                <button type="button"  onclick="$('#affiliateForm').submit();" class="btn btn-primary" style="margin-top:10px;">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+  $("#affiliateForm").validate({
+    rules: {
+        name: {
+            required: true
+        },
+        address: {
+            required: true
+        },
+        telephone: {
+            required: true
+        },
+        contactperson: {
+            required: true
+        },
+        contactemail: {
+            required: true
+        }
+    },
+    submitHandler: function(form) {
+      var data = {}
+      $.each($("#affiliateForm").find("[name]"), function() {
+        data[$(this).attr("name")] = $(this).val();
+      })
+      alert(JSON.stringify(data));
+      $("#affiliateForm")[0].reset();
+    }
+  });
+</script>
