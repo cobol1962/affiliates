@@ -17,12 +17,50 @@
   echo json_encode($r);
   exit;
   function getAffiliates($data, $params, $url, $mysqli) {
-    $sql = "select * from affiliates";
-    $rez = $mysqli->query($sql);
+    $where = "";
+    if (isset($data["id"])) {
+      $where = " WHERE id='" . $data["id"] . "'";
+    }
+    $sql = "select * from affiliates " . $where . " order by id desc ";
+
     $res = [];
     $res["data"] = [];
-    while ($row = mysqli_fetch_assoc($rez)) {
-      $res["data"][] = $row;
+    if (!mysqli_query($mysqli,$sql)) {
+      $res["status"] = "fail";
+      $res["type"] = "Mysql error";
+      $res["title"] = mysqli_error($mysqli);
+      $res["sql"] = $sql;
+    } else {
+      $rez = $mysqli->query($sql);
+      $res["status"] = "ok";
+      while ($row = mysqli_fetch_assoc($rez)) {
+        $res["data"][] = $row;
+      }
     }
     return $res;
   }
+  function insertUpdateAffiliate($data, $params, $url, $mysqli) {
+    foreach (array_keys($data) as $w) {
+      $$w = $data[$w];
+    }
+  
+    if ($id == "-1") {
+      $sql = "INSERT INTO `affiliates`(`name`, `address`, `telephone`, `contactperson`, `contactemail`, `generalcomission`)
+      values ('$name', '$address', '$telephone', '$contactperson', '$contactemail', '$generalcomission')";
+    } else {
+      $sql = "update `affiliates`
+        set `name`='$name', `address`='$address', `telephone`='$telephone', `contactperson`='$contactperson',
+         `contactemail`='$contactemail', `generalcomission`='$generalcomission'
+       where `id`=$id";
+    }
+    if (!mysqli_query($mysqli,$sql)) {
+      $res["status"] = "fail";
+      $res["type"] = "Mysql error";
+      $res["title"] = mysqli_error($mysqli);
+      $res["sql"] = $sql;
+    } else {
+      $res["status"] = "ok";
+    }
+    return $res;
+  }
+  ?>

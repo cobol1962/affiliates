@@ -39,6 +39,7 @@
         <th>Contact</th>
         <th>Email</th>
         <th>Commision</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -74,10 +75,29 @@
           {
               text: 'Create affiliate',
               action: function ( e, dt, node, config ) {
+                $("#affiliateForm")[0].reset();
+                $("#id").val("-1");
                   $("#affiliateFormModal").modal("show");
               }
           }
-      ]
+      ],
+      columns: [
+           { "data": "id" },
+           { "data": "name" },
+            { "data": "address" },
+            { "data": "telephone" },
+            { "data": "contactperson" },
+            { "data": "contactemail" },
+            { "data": "generalcomission" },
+            { "data": null,
+                "render": function(data, type, row) {
+                  var html = "";
+                  var evt = "editAffiliate(" + row["id"] + ");";
+                  html += "<a href='javascript:" + evt + "'>Edit</a)";
+                  return html;
+                }
+            }
+       ],
     });
   })
 </script>
@@ -91,6 +111,7 @@
             <div class="modal-body" id="filters_body">
               <form id="affiliateForm">
                 <!--  SELECT `id`, `name`, `address`, `telephone`, `contactperson`, `contactemail`, `generalcomission` -->
+                <input type="hidden" id="id"  value="-1" name="id" />
                 <div class="form-group">
                    <input placeholder="Name" id="name" type="text" name="name" class="form-control" />
                 </div>
@@ -107,7 +128,7 @@
                    <input placeholder="Contact email" id="contactemail" type="text" name="contactemail" class="form-control" />
                 </div>
                 <div class="form-group">
-                   <input placeholder="General discount" id="generalcomission" type="text" name="generalcomission" class="form-control" />
+                   <input type="number" value="15" placeholder="General discount" id="generalcomission" type="text" name="generalcomission" class="form-control" />
                 </div>
               </form>
             </div>
@@ -142,8 +163,28 @@
       $.each($("#affiliateForm").find("[name]"), function() {
         data[$(this).attr("name")] = $(this).val();
       })
-      alert(JSON.stringify(data));
-      $("#affiliateForm")[0].reset();
+      if (data.generalcomission == "") {
+        data.generalcomission = 15;
+      }
+      api.call("insertUpdateAffiliate", function (res) {
+        if (res.status == "ok") {
+          afTable.ajax.reload();
+          $("#affiliateForm")[0].reset();
+          $("#affiliateFormModal").modal('hide');
+        }
+      }, data, {}, {})
+
     }
   });
+  function editAffiliate(id) {
+    api.call("getAffiliates", function(res) {
+      if (res.status == "ok") {
+        var dt = res.data[0];
+        for (var key in dt) {
+          $("#affiliateForm").find("[name='" + key + "']").val(dt[key]);
+        }
+        $("#affiliateFormModal").modal('show');
+      }
+    }, {"id" : id}, {}, {})
+  }
 </script>
